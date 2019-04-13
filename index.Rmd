@@ -1340,7 +1340,7 @@ https://github.com/bbc/bbplot
 class: inverse, middle
 
 # Acknowledgments
-Thanks to Amy Cesal for leading the way on the use of styleguides in data visualiztion.  
+Thanks to Amy Cesal for leading the way on the use of style guides in data visualiztion.  
 https://www.amycesal.com/  
 
 Thanks to Yihui Xie for creating the Xaringan package that was used for this presentation.  
