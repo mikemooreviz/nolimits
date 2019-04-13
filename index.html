@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>No Limits!</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Mike Moore" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="index.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# No Limits!
+## Using custom themes to create beautiful visualizations with ggplot2
+### Mike Moore
+### April 4, 2019
+
+---
+
+
+
+class: inverse, middle
+
+# Breaking: Tufte Starts a Tweet Storm!
+
+
+Rstats coders and users just can't do words on graphics and typography. Proof: 40 years of clunky, even recent Stanford Statistics textbooks. Publication-quality work requires: R + Adobe Illustrator + reasoning about words on graphics + respect for audience/readers/viewers https://t.co/tqFYoZAH5v
+
+- Edward Tufte (@EdwardTufte) June 26, 2018
+
+---
+
+class: inverse
+
+# Making the case for publication quality graphics in R
+
+.pull-left[
+Does Tufte have a point? Perhaps.  
+  
+That said, more and more organizations like BBC News are using R and ggplot2 with custom themes as the backbone for their visualizations
+]
+
+
+.pull-right[
+
+&lt;blockquote class="twitter-tweet" data-lang="en"&gt;&lt;p lang="en" dir="ltr"&gt;Over the past year the BBC&amp;#39;s data journalists have fundamentally changed the way we produce graphics. Now we've open-sourced the tools we use for making production-ready visuals with &lt;a href="https://twitter.com/hashtag/rstats?src=hash&amp;amp;ref_src=twsrc%5Etfw"&gt;#rstats&lt;/a&gt; and &lt;a href="https://twitter.com/hashtag/ggplot?src=hash&amp;amp;ref_src=twsrc%5Etfw"&gt;#ggplot&lt;/a&gt;. &lt;br&gt;&lt;br&gt;Find out more here: &lt;a href="https://t.co/G3DhkFfyQD"&gt;https://t.co/G3DhkFfyQD&lt;/a&gt;&lt;/p&gt;&amp;mdash; BBC News Graphics (@BBCNewsGraphics) &lt;a href="https://twitter.com/BBCNewsGraphics/status/1091262653631221761?ref_src=twsrc%5Etfw"&gt;February 1, 2019&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8"&gt;&lt;/script&gt;
+
+]
+
+---
+
+class: inverse, middle, center
+
+# ggplot2: A quick primer
+
+---
+
+# What is ggplot2?
+
+--
+
+* An package for creating visualizations in R
+
+--
+
+* Created by Hadley Wickham
+
+--
+
+* Based on the Grammer of Graphics by Leland Wilkinson
+
+--
+
+* ggplot2 does not provide a set of pre-defined visualizations but rather a set of components that can be combined together to produce a customized visualization
+
+--
+
+* ggplot2 is a stand alone package but it's also included with the tidyverse which is a collection of packages designed for data analysis
+
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+
+```r
+*ggplot(mtcars)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/simple1-1.png" width="100%" /&gt;
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+
+```r
+ggplot(mtcars) +
+* aes(x = mpg)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/simple2-1.png" width="100%" /&gt;
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+
+```r
+ggplot(mtcars) +
+  aes(x = mpg) +
+* aes(y = disp)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/simple3-1.png" width="100%" /&gt;
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+
+```r
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+* ggtitle("A simple graph built up in layers")
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/simple4-1.png" width="100%" /&gt;
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+
+```r
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+  ggtitle("A simple graph built up in layers") +
+* geom_point(size = 4)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/simple5-1.png" width="100%" /&gt;
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+
+```r
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+  ggtitle("A simple graph built up in layers") +
+  geom_point(size = 4) +
+* aes(color = cyl)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/simple6-1.png" width="100%" /&gt;
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+
+```r
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+  ggtitle("A simple graph built up in layers") +
+  geom_point(size = 4) +
+  aes(color = cyl) +
+* theme_bw()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/simple7-1.png" width="100%" /&gt;
+]
+
+---
+
+# Download Tableau's Superstore data set
+.center-code[
+
+```r
+library(lubridate) # package for working with dates
+
+download.file("https://raw.githubusercontent.com/mikemooreviz/superstore/master/superstore.csv", "superstore.csv")
+
+superstore &lt;- read.csv("superstore.csv", header = TRUE)
+```
+
+---
+
+
+ ï..Row.ID  Order.ID         Order.Date   Ship.Date    Ship.Mode        Customer.ID   Customer.Name     Segment     Country         City              State         Postal.Code  Region   Product.ID        Category          Sub.Category   Product.Name                                                           Sales   Quantity   Discount      Profit
+----------  ---------------  -----------  -----------  ---------------  ------------  ----------------  ----------  --------------  ----------------  -----------  ------------  -------  ----------------  ----------------  -------------  -----------------------------------------------------------------  ---------  ---------  ---------  ----------
+         1  CA-2017-152156   2017-11-08   2017-11-11   Second Class     CG-12520      Claire Gute       Consumer    United States   Henderson         Kentucky            42420  South    FUR-BO-10001798   Furniture         Bookcases      Bush Somerset Collection Bookcase                                   261.9600          2       0.00     41.9136
+         2  CA-2017-152156   2017-11-08   2017-11-11   Second Class     CG-12520      Claire Gute       Consumer    United States   Henderson         Kentucky            42420  South    FUR-CH-10000454   Furniture         Chairs         Hon Deluxe Fabric Upholstered Stacking Chairs, Rounded Back         731.9400          3       0.00    219.5820
+         3  CA-2017-138688   2017-06-12   2017-06-16   Second Class     DV-13045      Darrin Van Huff   Corporate   United States   Los Angeles       California          90036  West     OFF-LA-10000240   Office Supplies   Labels         Self-Adhesive Address Labels for Typewriters by Universal            14.6200          2       0.00      6.8714
+         4  US-2016-108966   2016-10-11   2016-10-18   Standard Class   SO-20335      Sean O'Donnell    Consumer    United States   Fort Lauderdale   Florida             33311  South    FUR-TA-10000577   Furniture         Tables         Bretford CR4500 Series Slim Rectangular Table                       957.5775          5       0.45   -383.0310
+         5  US-2016-108966   2016-10-11   2016-10-18   Standard Class   SO-20335      Sean O'Donnell    Consumer    United States   Fort Lauderdale   Florida             33311  South    OFF-ST-10000760   Office Supplies   Storage        Eldon Fold 'N Roll Cart System                                       22.3680          2       0.20      2.5164
+         6  CA-2015-115812   2015-06-09   2015-06-14   Standard Class   BH-11710      Brosina Hoffman   Consumer    United States   Los Angeles       California          90032  West     FUR-FU-10001487   Furniture         Furnishings    Eldon Expressions Wood and Plastic Desk Accessories, Cherry Wood     48.8600          7       0.00     14.1694
+]
+
+---
+
+# Then tidy the data for analysis
+
+
+```r
+store &lt;- superstore %&gt;%
+  mutate(Year = year(as.Date(Order.Date))) %&gt;%
+  filter(State %in% c('Ohio', 'Indiana', 'Kentucky')) %&gt;%
+  select(State, Year, Sales) %&gt;%
+  group_by(State, Year) %&gt;%
+  summarise(Sales = sum(Sales))
+```
+
+
+&lt;img src="http://garrettgman.github.io/images/tidy-4.png" width="70%" /&gt;
+
+http://garrettgman.github.io/tidying/
+---
+
+# Lets see what the data looks like
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; State &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Year &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Sales &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Indiana &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2015 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2936.81 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Indiana &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6640.32 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Indiana &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25461.78 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Indiana &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 18516.45 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Kentucky &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2015 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8280.46 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Kentucky &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7673.56 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Kentucky &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 5102.89 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Kentucky &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 15534.84 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ohio &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2015 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14134.85 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ohio &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2016 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 16110.43 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ohio &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2017 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 24748.01 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ohio &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2018 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 23264.85 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+# How can we show this data visually?
+
+.left-code[
+
+```r
+plot &lt;- ggplot(store, aes(x=Year, y=Sales, 
+                          fill=State, 
+                          color=State))
+*plot
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/store1-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# We will plot the points first
+
+.left-code[
+
+```r
+plot +
+* geom_point()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/store2-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Now add some lines to the see the trend
+
+.left-code[
+
+```r
+plot +
+  geom_point() +
+* geom_line()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/store3-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# ggplot2 built-in themes
+
+.left-code[
+
+The ggplot2 built-in theme_light() function removes the gray background and puts more focus on the data
+
+
+```r
+plot +
+  geom_point() +
+  geom_line() +
+* theme_light()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/store4-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Here is another theme
+
+.left-code[
+
+This is theme_minimal().  Notice how we are able to keep removing visual elements?
+
+```r
+plot +
+  geom_point() +
+  geom_line() +
+* theme_minimal()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/store5-out-1.png" width="100%" /&gt;
+]
+
+---
+
+background-image: url("https://supercultshow.files.wordpress.com/2013/10/starship-troopers-1.jpg")
+background-size: cover
+
+---
+# Hadley Wickham
+
+.pull-left[
+  ggplot2: Elegant Graphics for Data Analysis  
+  https://www.amazon.com/ggplot2-Elegant-Graphics-Data-Analysis/dp/0387981403
+]
+
+.pull-right[
+
+&lt;img src="https://images-na.ssl-images-amazon.com/images/I/31uoy-qmhEL._SX331_BO1,204,203,200_.jpg" width="70%" /&gt;
+]
+---
+class: inverse, middle, center
+
+# How ggplot2 themes work
+
+---
+
+# Components of a ggplot2 theme
+
+* Plot - background, title, margins  
+
+--
+
+* Axis - line, text, title, axis ticks, length of tick marks  
+
+--
+
+* Legend - legend background, legend key size, height &amp; width, labels  
+
+--
+
+* Panel - panel background, border, grid lines, plot aspect ration  
+
+--
+
+* Facet - background of panel strips, strip text, marins between facets  
+
+https://ggplot2.tidyverse.org/reference/theme.html
+---
+
+class: inverse, middle, center
+
+# Create a custom ggplot2 theme
+
+---
+
+layout: ture
+# Some theme elements that can be changed
+
+
+.left-code[
+
+```r
+plot +
+* ggtitle("Some theme elements that can be changed!")
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot1-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") + 
+* theme(
+*   plot.background = element_rect(color="steelblue",
+*                                  size=2)
+  )
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot2-out-1.png" width="100%" /&gt;
+]
+
+
+---
+# Some theme elements that can be changed
+.left-code[
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=2),
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+*                             face="bold.italic")
+  )
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot3-out-1.png" width="100%" /&gt;
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+*   plot.margin = unit(c(1,1,1.5,1.2),"cm")
+  )
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot4-out-1.png" width="100%" /&gt;
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+If for some reason you want to remove the axis text...
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+*   axis.text.x = element_blank(),
+*   axis.text.y = element_blank()
+  )
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot5-out-1.png" width="100%" /&gt;
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+Or change the axis label to currency.
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+* labs(x="Sales Years",y="Total Sales")
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot7-out-1.png" width="100%" /&gt;
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+Or change the axis label to currency.
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+*   panel.background = element_blank()
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales")
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot8-out-1.png" width="100%" /&gt;
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+Or change the axis label to currency.
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+*   panel.background = element_rect(fill = "yellow",
+*                               colour = "blue",
+*                               size = 1.0, linetype = "dashed")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales")
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot9-out-1.png" width="100%" /&gt;
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+*   panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+*                               colour = "purple"),
+*   panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+*                               colour = "green")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales")
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot10-out-1.png" width="100%" /&gt;
+]
+
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green")               
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+* geom_point(size = 4)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot11-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+*   legend.box.background = element_rect()
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) 
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot12-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) 
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot14-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted"),
+    legend.position="bottom"
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot15-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+
+```r
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted"),
+    legend.position="bottom",
+    strip.background = element_rect(colour = "black", fill = "white")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) +
+* facet_wrap(State ~ .)
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/plot16-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# Introducting our new theme!
+
+.left-code[
+
+```r
+  theme_jurassic &lt;- theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted"),
+    legend.position="bottom"
+    )
+```
+
+
+
+```r
+plot +
+  ggtitle("Wow! Look at my new theme!!!") +
+  geom_col() +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) +
+* theme_jurassic
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/wow-out-1.png" width="100%" /&gt;
+]
+
+---
+
+
+class: center, inverse
+
+background-image: url("https://cdn-images-1.medium.com/max/1600/0*gcOQ0bTIYGdOynR7.jpg")
+background-position: center
+background-size: cover
+---
+
+class: inverse, middle, center
+
+# Built-in ggplot2 themes
+
+---
+
+# Create a base plot
+
+.left-code[
+
+```r
+theme_set(theme_gray())
+plot &lt;- ggplot(store, aes(x = Year, y = Sales, 
+                          fill = State, 
+                          color = State))
+plot
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/baseplot-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# The default ggplot2 theme: theme_gray()
+
+.left-code[
+
+```r
+plot + geom_col()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/gray-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# The default ggplot2 theme: theme_gray()
+
+.left-code[
+
+```r
+plot + geom_line() +
+  geom_point()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/grayline-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# ggplot2 theme: theme_dark()
+
+.left-code[
+
+```r
+plot + geom_col() +
+  theme_dark()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/darkcol-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# ggplot2 theme: theme_dark()
+
+.left-code[
+
+```r
+plot + geom_line() +
+  geom_point() +
+  theme_dark()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/darkline-out-1.png" width="100%" /&gt;
+]
+
+---
+
+class: inverse, middle, center
+
+# The ggthemes package
+
+---
+
+# The Wall Street Journal
+
+
+.left-code[
+
+
+```r
+library(ggthemes)
+
+plot + geom_col() +
+* theme_wsj() +
+* scale_fill_manual(values = wsj_pal(palette = "colors6")(3)) +
+* scale_color_manual(values = wsj_pal(palette = "colors6")(3))
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/wsj-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# The Wall Street Journal
+
+
+.left-code[
+
+
+```r
+library(ggthemes)
+
+plot + geom_point() +
+  geom_line() +
+* theme_wsj() +
+* scale_fill_manual(values = wsj_pal(palette = "colors6")(3)) +
+* scale_color_manual(values = wsj_pal(palette = "colors6")(3))
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/wsjl-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# The Economist
+
+
+.left-code[
+
+
+```r
+library(ggthemes)
+
+plot + geom_col() +
+* theme_economist() +
+* scale_fill_manual(values = economist_pal(fill = TRUE)(3)) +
+* scale_color_manual(values = economist_pal(fill = TRUE)(3))
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/econ1-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# The Economist
+
+
+.left-code[
+
+```r
+library(ggthemes)
+
+plot + geom_point() +
+  geom_line() +
+* theme_economist() +
+* scale_fill_manual(values = economist_pal(fill = TRUE)(3)) +
+* scale_color_manual(values = economist_pal(fill = TRUE)(3)) #&lt;&lt;
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/econ2-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# The Tufte inspired theme
+
+.left-code[
+
+
+
+```r
+library(ggthemes)
+
+plot + geom_col() +
+* theme_tufte()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/tufte1-out-1.png" width="100%" /&gt;
+]
+
+---
+
+# The Tufte inspired theme
+
+
+.left-code[
+
+```r
+library(ggthemes)
+
+plot + geom_point() +
+  geom_line() +
+* theme_tufte()
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/tufte2-out-1.png" width="100%" /&gt;
+]
+
+---
+
+class: inverse, middle, center
+
+# Other popular themes
+---
+
+# hrbrthemes
+
+"A very focused package that provides typography-centric themes and theme components for ggplot2"  
+&lt;img src="https://github.com/hrbrmstr/hrbrthemes/blob/master/README_figs/README-unnamed-chunk-12-1.png?raw=true" width="60%" /&gt;
+
+https://github.com/hrbrmstr/hrbrthemes
+
+---
+
+# ggpubr
+
+"The 'ggpubr' package provides some easy-to-use functions for creating and customizing 'ggplot2'- based publication ready plots"  
+
+.pull-left[
+&lt;img src="https://rpkgs.datanovia.com/ggpubr/tools/README-ggpubr-1.png" width="60%" /&gt;
+]
+
+.pull-right[
+&lt;img src="https://rpkgs.datanovia.com/ggpubr/tools/README-ggpubr-2.png" width="60%" /&gt;
+]
+
+https://github.com/kassambara/ggpubr 
+---
+# tidyquant
+
+"tidyquant integrates the best resources for collecting and analyzing financial data"  
+
+
+&lt;img src="https://github.com/business-science/tidyquant/raw/master/man/figures/sample_img_1_volatility.png" width="50%" /&gt;
+
+https://github.com/business-science/tidyquant    
+
+---
+
+class: inverse, middle, center
+
+# Styleguides
+
+---
+
+
+
+
+class: inverse, middle, center
+
+# The Sunlight Foundation
+
+---
+
+# Why Data Viz Needs a Style Guide
+
+.pull-left[
+.large[Amy Cesal] is a graphic designer specializing in data visualization. She's currently a User Experience contractor for the Veterans Administration. Previously, Amy worked for the federal government as a Technology and Innovation Fellow at the Consumer Financial Protection Bureau and at the nonprofit Sunlight Foundation. Amy also holds a master's degree in Information Visualization from the Maryland Institute College of Art and is a 2017 Information is Beautiful rising star.
+
+twitter: https://twitter.com/AmyCesal  
+website: https://www.amycesal.com
+]
+
+.pull-right[
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/SkATiaTJXFU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen&gt;&lt;/iframe&gt;
+]
+---
+
+# Create consistency
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/sl1.jpeg?raw=true)
+
+
+---
+# Reduce rework
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/sl2.jpeg?raw=true)
+
+
+---
+# Build trust
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/sl3.jpeg?raw=true)
+
+---
+# Sunlight Foundation ggplot2 theme
+.left-code[
+
+
+
+```r
+plot +
+  ggtitle("Sunlight Foundation ggplot2 R theme") +
+  geom_col() +
+* theme_sunlight() +
+  scale_fill_manual(values = c("#F2DA57", "#E6842A", "#005D6E")) +
+  scale_color_manual(values = c("#F2DA57", "#E6842A", "#005D6E"))
+```
+]
+
+
+.right-plot[
+&lt;img src="index_files/figure-html/sl2-out-1.png" width="100%" /&gt;
+]
+
+https://github.com/sunlightlabs/chartoff
+---
+
+
+class: inverse, middle, center
+
+# BBC News data team
+"At the BBC data team, we have developed an R package and an R cookbook to make the process of creating publication-ready graphics in our in-house style using R's ggplot2 library a more reproducible process, as well as making it easier for people new to R to create graphics."
+
+---
+# BBPLOT R Cookbook
+
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/bbc.png?raw=true)
+
+
+---
+# A graphic using the bbc_style() theme
+
+.left-code[
+
+```r
+library(bbplot)
+plot + geom_col() +
+  bbc_style() +
+  scale_fill_manual(values = c("#FAAB18", "#1380A1","#588300")) +
+  scale_color_manual(values = c("#FAAB18", "#1380A1","#588300"))
+```
+]
+
+.right-plot[
+&lt;img src="index_files/figure-html/bbc-out-1.png" width="100%" /&gt;
+]
+
+https://github.com/bbc/bbplot
+---
+
+class: inverse, middle
+
+# Acknowledgments
+Thanks to Amy Cesal for leading the way on the use of styleguides in data visualiztion.  
+https://www.amycesal.com/  
+
+Thanks to Yihui Xie for creating the Xaringan package that was used for this presentation.  
+https://yihui.name/en/  
+  
+Thanks to Gina Reynolds whose work showed me what possible using Xaringan.  
+https://evangelinereynolds.netlify.com/  
+
+Thanks to Garrick Aden-Buie whose work showed me how to Xaringan.  
+https://www.garrickadenbuie.com
+
+Thanks to Hadley Wickahm for ggplot2.  
+http://hadley.nz/
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "foundation",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"slideNumberFormat": "%current%"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

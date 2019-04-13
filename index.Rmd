@@ -1,0 +1,1356 @@
+---
+title: "No Limits!"
+subtitle: "Using custom themes to create beautiful visualizations with ggplot2"
+author: "Mike Moore"
+date: "April 4, 2019"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["default", "index.css"]
+    r: "sunlight_R_style.R"
+    df_print: kable
+    nature:
+      ratio: 16:9
+      highlightStyle: "foundation"
+      highlightLines: true
+      countIncrementalSlides: true
+      slideNumberFormat: "%current%"
+      beforeInit: "https://platform.twitter.com/widgets.js"
+editor_options: 
+  chunk_output_type: console
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.height = 6, out.width = "100%", comment = " ", cache = T)
+library(tidyverse)
+library(ggthemes)
+library(lubridate)
+
+```
+
+class: inverse, middle
+
+# Breaking: Tufte Starts a Tweet Storm!
+
+
+Rstats coders and users just can't do words on graphics and typography. Proof: 40 years of clunky, even recent Stanford Statistics textbooks. Publication-quality work requires: R + Adobe Illustrator + reasoning about words on graphics + respect for audience/readers/viewers https://t.co/tqFYoZAH5v
+
+- Edward Tufte (@EdwardTufte) June 26, 2018
+
+---
+
+class: inverse
+
+# Making the case for publication quality graphics in R
+
+.pull-left[
+Does Tufte have a point? Perhaps.  
+  
+That said, more and more organizations like BBC News are using R and ggplot2 with custom themes as the backbone for their visualizations
+]
+
+
+.pull-right[
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Over the past year the BBC&#39;s data journalists have fundamentally changed the way we produce graphics. Now we've open-sourced the tools we use for making production-ready visuals with <a href="https://twitter.com/hashtag/rstats?src=hash&amp;ref_src=twsrc%5Etfw">#rstats</a> and <a href="https://twitter.com/hashtag/ggplot?src=hash&amp;ref_src=twsrc%5Etfw">#ggplot</a>. <br><br>Find out more here: <a href="https://t.co/G3DhkFfyQD">https://t.co/G3DhkFfyQD</a></p>&mdash; BBC News Graphics (@BBCNewsGraphics) <a href="https://twitter.com/BBCNewsGraphics/status/1091262653631221761?ref_src=twsrc%5Etfw">February 1, 2019</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+]
+
+---
+
+class: inverse, middle, center
+
+# ggplot2: A quick primer
+
+---
+
+# What is ggplot2?
+
+--
+
+* An package for creating visualizations in R
+
+--
+
+* Created by Hadley Wickham
+
+--
+
+* Based on the Grammer of Graphics by Leland Wilkinson
+
+--
+
+* ggplot2 does not provide a set of pre-defined visualizations but rather a set of components that can be combined together to produce a customized visualization
+
+--
+
+* ggplot2 is a stand alone package but it's also included with the tidyverse which is a collection of packages designed for data analysis
+
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+```{r simple1, eval=FALSE}
+ggplot(mtcars) #<<
+```
+]
+
+.right-plot[
+```{r simple1, ref.label='simple1', echo=FALSE, out.width="100%"}
+```
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+```{r simple2, eval=FALSE}
+ggplot(mtcars) +
+  aes(x = mpg) #<<
+```
+]
+
+.right-plot[
+```{r simple2, ref.label='simple2', echo=FALSE, out.width="100%"}
+```
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+```{r simple3, eval=FALSE}
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) #<<
+```
+]
+
+.right-plot[
+```{r simple3, ref.label='simple3', echo=FALSE, out.width="100%"}
+```
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+```{r simple4, eval=FALSE}
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+  ggtitle("A simple graph built up in layers") #<<
+```
+]
+
+.right-plot[
+```{r simple4, ref.label='simple4', echo=FALSE, out.width="100%"}
+```
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+```{r simple5, eval=FALSE}
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+  ggtitle("A simple graph built up in layers") +
+  geom_point(size = 4) #<<
+```
+]
+
+.right-plot[
+```{r simple5, ref.label='simple5', echo=FALSE, out.width="100%"}
+```
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+```{r simple6, eval=FALSE}
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+  ggtitle("A simple graph built up in layers") +
+  geom_point(size = 4) +
+  aes(color = cyl) #<<
+```
+]
+
+.right-plot[
+```{r simple6, ref.label='simple6', echo=FALSE, out.width="100%"}
+```
+]
+
+---
+
+# Let's start with a simple graph
+
+.left-code[
+```{r simple7, eval=FALSE}
+ggplot(mtcars) +
+  aes(x = mpg) +
+  aes(y = disp) +
+  ggtitle("A simple graph built up in layers") +
+  geom_point(size = 4) +
+  aes(color = cyl) +
+  theme_bw() #<<
+```
+]
+
+.right-plot[
+```{r simple7, ref.label='simple7', echo=FALSE, out.width="100%"}
+```
+]
+
+---
+
+# Download Tableau's Superstore data set
+.center-code[
+```{r}
+library(lubridate) # package for working with dates
+
+download.file("https://raw.githubusercontent.com/mikemooreviz/superstore/master/superstore.csv", "superstore.csv")
+
+superstore <- read.csv("superstore.csv", header = TRUE)
+
+```
+
+---
+
+```{r echo=FALSE}
+
+knitr::kable(head(superstore), format = "pandoc")
+
+```
+]
+
+---
+
+# Then tidy the data for analysis
+
+```{r}
+
+store <- superstore %>%
+  mutate(Year = year(as.Date(Order.Date))) %>%
+  filter(State %in% c('Ohio', 'Indiana', 'Kentucky')) %>%
+  select(State, Year, Sales) %>%
+  group_by(State, Year) %>%
+  summarise(Sales = sum(Sales))
+
+```
+
+
+```{r, out.width="70%", echo=FALSE}
+knitr::include_graphics("http://garrettgman.github.io/images/tidy-4.png")
+```
+
+http://garrettgman.github.io/tidying/
+---
+
+# Lets see what the data looks like
+
+```{r dat, echo=FALSE}
+
+knitr::kable(view(store), format = "html")
+
+```
+
+---
+
+# How can we show this data visually?
+
+.left-code[
+```{r store1, eval=FALSE}
+
+plot <- ggplot(store, aes(x=Year, y=Sales, 
+                          fill=State, 
+                          color=State))
+plot #<<
+```
+]
+
+.right-plot[
+```{r store1-out, ref.label='store1', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# We will plot the points first
+
+.left-code[
+```{r store2, eval=FALSE}
+plot +
+  geom_point() #<<
+```
+]
+
+.right-plot[
+```{r store2-out, ref.label='store2', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# Now add some lines to the see the trend
+
+.left-code[
+```{r store3, eval=FALSE}
+plot +
+  geom_point() +
+  geom_line() #<<
+```
+]
+
+.right-plot[
+```{r store3-out, ref.label='store3', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# ggplot2 built-in themes
+
+.left-code[
+
+The ggplot2 built-in theme_light() function removes the gray background and puts more focus on the data
+
+```{r store4, eval=FALSE}
+plot +
+  geom_point() +
+  geom_line() +
+  theme_light() #<<
+```
+]
+
+.right-plot[
+```{r store4-out, ref.label='store4', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# Here is another theme
+
+.left-code[
+
+This is theme_minimal().  Notice how we are able to keep removing visual elements?
+```{r store5, eval=FALSE}
+plot +
+  geom_point() +
+  geom_line() +
+  theme_minimal() #<<
+```
+]
+
+.right-plot[
+```{r store5-out, ref.label='store5', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+background-image: url("https://supercultshow.files.wordpress.com/2013/10/starship-troopers-1.jpg")
+background-size: cover
+
+---
+# Hadley Wickham
+
+.pull-left[
+  ggplot2: Elegant Graphics for Data Analysis  
+  https://www.amazon.com/ggplot2-Elegant-Graphics-Data-Analysis/dp/0387981403
+]
+
+.pull-right[
+
+```{r, out.width="70%", echo=FALSE}
+knitr::include_graphics("https://images-na.ssl-images-amazon.com/images/I/31uoy-qmhEL._SX331_BO1,204,203,200_.jpg")
+```
+]
+---
+class: inverse, middle, center
+
+# How ggplot2 themes work
+
+---
+
+# Components of a ggplot2 theme
+
+* Plot - background, title, margins  
+
+--
+
+* Axis - line, text, title, axis ticks, length of tick marks  
+
+--
+
+* Legend - legend background, legend key size, height & width, labels  
+
+--
+
+* Panel - panel background, border, grid lines, plot aspect ration  
+
+--
+
+* Facet - background of panel strips, strip text, marins between facets  
+
+https://ggplot2.tidyverse.org/reference/theme.html
+---
+
+class: inverse, middle, center
+
+# Create a custom ggplot2 theme
+
+---
+
+layout: ture
+# Some theme elements that can be changed
+
+
+.left-code[
+```{r plot1, eval=FALSE}
+plot +
+  ggtitle("Some theme elements that can be changed!") #<<
+```
+]
+
+.right-plot[
+```{r plot1-out, ref.label='plot1', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+```{r plot2, eval=FALSE}
+plot +
+  ggtitle("Some theme elements that can be changed!") + 
+  theme( #<<
+    plot.background = element_rect(color="steelblue", #<<
+                                   size=2) #<<
+  )
+```
+]
+
+.right-plot[
+```{r plot2-out, ref.label='plot2', echo=FALSE, out.width="100%"}
+
+```
+]
+
+
+---
+# Some theme elements that can be changed
+.left-code[
+```{r plot3, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=2),
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic") #<<
+  )
+
+```
+]
+
+.right-plot[
+```{r plot3-out, ref.label='plot3', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+```{r plot4, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm") #<<
+  )
+```
+]
+
+.right-plot[
+```{r plot4-out, ref.label='plot4', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+If for some reason you want to remove the axis text...
+```{r plot5, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    axis.text.x = element_blank(), #<<
+    axis.text.y = element_blank() #<<
+  )
+
+```
+]
+
+.right-plot[
+```{r plot5-out, ref.label='plot5', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+Or change the axis label to currency.
+```{r plot7, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") #<<
+  
+```
+]
+
+.right-plot[
+```{r plot7-out, ref.label='plot7', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+Or change the axis label to currency.
+```{r plot8, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_blank() #<<
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales")
+  
+```
+]
+
+.right-plot[
+```{r plot8-out, ref.label='plot8', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+Or change the axis label to currency.
+```{r plot9, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",         #<<
+                                colour = "blue",                 #<<
+                                size = 1.0, linetype = "dashed") #<<
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales")
+  
+```
+]
+
+.right-plot[
+```{r plot9-out, ref.label='plot9', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+# Some theme elements that can be changed
+.left-code[
+
+```{r plot10, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',  #<<
+                                colour = "purple"), #<<
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid', #<<
+                                colour = "green")                   #<<
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales")
+  
+```
+]
+
+.right-plot[
+```{r plot10-out, ref.label='plot10', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+```{r plot11, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green")               
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) #<<
+  
+```
+]
+
+.right-plot[
+```{r plot11-out, ref.label='plot11', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+```{r plot12, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect() #<<
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) 
+  
+```
+]
+
+.right-plot[
+```{r plot12-out, ref.label='plot12', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+```{r plot14, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) 
+  
+```
+]
+
+.right-plot[
+```{r plot14-out, ref.label='plot14', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+```{r plot15, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted"),
+    legend.position="bottom"
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4)
+  
+```
+]
+
+.right-plot[
+```{r plot15-out, ref.label='plot15', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+
+# Some theme elements that can be changed
+.left-code[
+
+```{r plot16, eval=FALSE}
+
+plot +
+  ggtitle("Some theme elements that can be changed!") +
+  theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted"),
+    legend.position="bottom",
+    strip.background = element_rect(colour = "black", fill = "white")
+    ) +
+  # scale_y_continuous(labels = dollar) +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) +
+  facet_wrap(State ~ .) #<<
+  
+```
+]
+
+.right-plot[
+```{r plot16-out, ref.label='plot16', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+
+# Introducting our new theme!
+
+.left-code[
+```{r wowh}
+  theme_jurassic <- theme(
+    plot.background = element_rect(color="steelblue", size=5) ,
+    plot.title = element_text(family="Times", 
+                              color="red", 
+                              size=14, 
+                              face="bold.italic"),
+    plot.margin = unit(c(1,1,1.5,1.2),"cm"),
+    panel.background = element_rect(fill = "yellow",
+                                colour = "blue",
+                                size = 1.0, linetype = "dashed"),
+    panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                colour = "purple"),
+    panel.grid.minor = element_line(size = 1.0, linetype = 'solid',
+                                colour = "green"),
+    legend.box.background = element_rect(color="#FF00FF", 
+                                         size=2, 
+                                         linetype="dotted"),
+    legend.position="bottom"
+    )
+
+```
+
+
+```{r wow, eval=FALSE}
+plot +
+  ggtitle("Wow! Look at my new theme!!!") +
+  geom_col() +
+  labs(x="Sales Years",y="Total Sales") +
+  geom_point(size = 4) +
+  theme_jurassic #<<
+```
+]
+
+.right-plot[
+```{r wow-out, ref.label='wow', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+---
+
+
+class: center, inverse
+
+background-image: url("https://cdn-images-1.medium.com/max/1600/0*gcOQ0bTIYGdOynR7.jpg")
+background-position: center
+background-size: cover
+---
+
+class: inverse, middle, center
+
+# Built-in ggplot2 themes
+
+---
+
+# Create a base plot
+
+.left-code[
+```{r baseplot, eval=FALSE}
+
+theme_set(theme_gray())
+plot <- ggplot(store, aes(x = Year, y = Sales, 
+                          fill = State, 
+                          color = State))
+plot
+
+```
+]
+
+.right-plot[
+```{r baseplot-out, ref.label='baseplot', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# The default ggplot2 theme: theme_gray()
+
+.left-code[
+```{r gray, eval=FALSE}
+plot + geom_col()
+```
+]
+
+.right-plot[
+```{r gray-out, ref.label='gray', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# The default ggplot2 theme: theme_gray()
+
+.left-code[
+```{r grayline, eval=FALSE}
+plot + geom_line() +
+  geom_point()
+```
+]
+
+.right-plot[
+```{r grayline-out, ref.label='grayline', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# ggplot2 theme: theme_dark()
+
+.left-code[
+```{r darkcol, eval=FALSE}
+plot + geom_col() +
+  theme_dark()
+```
+]
+
+.right-plot[
+```{r darkcol-out, ref.label='darkcol', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# ggplot2 theme: theme_dark()
+
+.left-code[
+```{r darkline, eval=FALSE}
+plot + geom_line() +
+  geom_point() +
+  theme_dark()
+```
+]
+
+.right-plot[
+```{r darkline-out, ref.label='darkline', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+class: inverse, middle, center
+
+# The ggthemes package
+
+---
+
+# The Wall Street Journal
+
+
+.left-code[
+
+```{r wsj, eval=FALSE}
+library(ggthemes)
+
+plot + geom_col() +
+  theme_wsj() + #<<
+  scale_fill_manual(values = wsj_pal(palette = "colors6")(3)) + #<<
+  scale_color_manual(values = wsj_pal(palette = "colors6")(3)) #<<
+  
+```
+]
+
+.right-plot[
+```{r wsj-out, ref.label='wsj', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# The Wall Street Journal
+
+
+.left-code[
+
+```{r wsjl, eval=FALSE}
+library(ggthemes)
+
+plot + geom_point() +
+  geom_line() +
+  theme_wsj() + #<<
+  scale_fill_manual(values = wsj_pal(palette = "colors6")(3)) + #<<
+  scale_color_manual(values = wsj_pal(palette = "colors6")(3)) #<<
+  
+```
+]
+
+.right-plot[
+```{r wsjl-out, ref.label='wsjl', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# The Economist
+
+
+.left-code[
+
+```{r econ1, eval=FALSE}
+library(ggthemes)
+
+plot + geom_col() +
+  theme_economist() + #<<
+  scale_fill_manual(values = economist_pal(fill = TRUE)(3)) + #<<
+  scale_color_manual(values = economist_pal(fill = TRUE)(3)) #<<
+  
+```
+]
+
+.right-plot[
+```{r econ1-out, ref.label='econ1', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# The Economist
+
+
+.left-code[
+```{r econ2, eval=FALSE}
+library(ggthemes)
+
+plot + geom_point() +
+  geom_line() +
+  theme_economist() + #<<
+  scale_fill_manual(values = economist_pal(fill = TRUE)(3)) + #<<
+  scale_color_manual(values = economist_pal(fill = TRUE)(3)) #<< #<<
+  
+```
+]
+
+.right-plot[
+```{r econ2-out, ref.label='econ2', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# The Tufte inspired theme
+
+.left-code[
+
+
+```{r tufte1, eval=FALSE}
+library(ggthemes)
+
+plot + geom_col() +
+  theme_tufte() #<<
+  
+```
+]
+
+.right-plot[
+```{r tufte1-out, ref.label='tufte1', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+# The Tufte inspired theme
+
+
+.left-code[
+```{r tufte2, eval=FALSE}
+library(ggthemes)
+
+plot + geom_point() +
+  geom_line() +
+  theme_tufte() #<<
+  
+```
+]
+
+.right-plot[
+```{r tufte2-out, ref.label='tufte2', echo=FALSE, out.width="100%"}
+
+```
+]
+
+---
+
+class: inverse, middle, center
+
+# Other popular themes
+---
+
+# hrbrthemes
+
+"A very focused package that provides typography-centric themes and theme components for ggplot2"  
+```{r, out.width="60%", echo=FALSE}
+knitr::include_graphics("https://github.com/hrbrmstr/hrbrthemes/blob/master/README_figs/README-unnamed-chunk-12-1.png?raw=true")
+```
+
+https://github.com/hrbrmstr/hrbrthemes
+
+---
+
+# ggpubr
+
+"The 'ggpubr' package provides some easy-to-use functions for creating and customizing 'ggplot2'- based publication ready plots"  
+
+.pull-left[
+```{r, out.width="60%", echo=FALSE}
+knitr::include_graphics("https://rpkgs.datanovia.com/ggpubr/tools/README-ggpubr-1.png")
+```
+]
+
+.pull-right[
+```{r, out.width="60%", echo=FALSE}
+knitr::include_graphics("https://rpkgs.datanovia.com/ggpubr/tools/README-ggpubr-2.png")
+```
+]
+
+https://github.com/kassambara/ggpubr 
+---
+# tidyquant
+
+"tidyquant integrates the best resources for collecting and analyzing financial data"  
+
+
+```{r, out.width="50%", echo=FALSE}
+knitr::include_graphics("https://github.com/business-science/tidyquant/raw/master/man/figures/sample_img_1_volatility.png")
+```
+
+https://github.com/business-science/tidyquant    
+
+---
+
+class: inverse, middle, center
+
+# Styleguides
+
+---
+
+
+
+
+class: inverse, middle, center
+
+# The Sunlight Foundation
+
+---
+
+# Why Data Viz Needs a Style Guide
+
+.pull-left[
+.large[Amy Cesal] is a graphic designer specializing in data visualization. She's currently a User Experience contractor for the Veterans Administration. Previously, Amy worked for the federal government as a Technology and Innovation Fellow at the Consumer Financial Protection Bureau and at the nonprofit Sunlight Foundation. Amy also holds a master's degree in Information Visualization from the Maryland Institute College of Art and is a 2017 Information is Beautiful rising star.
+
+twitter: https://twitter.com/AmyCesal  
+website: https://www.amycesal.com
+]
+
+.pull-right[
+<iframe width="560" height="315" src="https://www.youtube.com/embed/SkATiaTJXFU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+]
+---
+
+# Create consistency
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/sl1.jpeg?raw=true)
+
+
+---
+# Reduce rework
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/sl2.jpeg?raw=true)
+
+
+---
+# Build trust
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/sl3.jpeg?raw=true)
+
+---
+# Sunlight Foundation ggplot2 theme
+.left-code[
+```{r, include=FALSE}
+library('ggplot2')
+library('grid')
+theme_sunlight <- function () { 
+  theme(
+  #background, margins, title
+  plot.background = element_rect(fill="#EFECEA", color= NA),
+  plot.margin = unit(c(2.8835,.582083,2.0748,.9378), "cm"),
+  plot.title = element_text(vjust = 7.9746, hjust = 0, size = 20, family = "ITC Franklin Gothic Std Demi Condensed"),
+  
+  #plot area and grid
+  panel.border = element_blank(),
+  panel.background = element_rect(fill="transparent", size = 0),
+  panel.grid.minor = element_blank(),
+  panel.grid.major = element_line(size=.4703669, color = "#FFFFFF"),
+  
+  #axes, ticks, and axis labels
+  axis.line = element_line(size=.4703669, color = "#FFFFFF"),
+  axis.ticks = element_blank(),
+  axis.ticks.length = unit(.20888, "cm"),
+  axis.text.x = element_text(size = 12, family = "ITC Franklin Gothic Std Demi"),
+  axis.text.y = element_text(size = 12, family = "ITC Franklin Gothic Std Demi"),
+  axis.title.x = element_text(vjust = -2.1804, size = 12, family = "Franklin Gothic Book"),
+  axis.title.y = element_text(vjust = -1.2633, angle = -90, size = 12, family = "Franklin Gothic Book"),
+  
+  #legend
+  legend.background = element_rect(fill = "#E5E2E0", size = .4703669, color = "#C0C0BB"),
+  legend.text = element_text(size = 10, family = "Franklin Gothic Book"),
+  legend.title = element_blank(),
+  legend.key = element_rect(fill="#E5E2E0", colour= "#E5E2E0", size = 0),
+  legend.key.height = unit(1, "cm"),
+  legend.key.width = unit(.645,"cm"),
+  legend.margin = unit(1.5741,"cm"))
+}
+```
+
+```{r sl2, eval=FALSE}
+plot +
+  ggtitle("Sunlight Foundation ggplot2 R theme") +
+  geom_col() +
+  theme_sunlight() + #<<
+  scale_fill_manual(values = c("#F2DA57", "#E6842A", "#005D6E")) +
+  scale_color_manual(values = c("#F2DA57", "#E6842A", "#005D6E"))
+```
+]
+
+
+.right-plot[
+```{r sl2-out, ref.label='sl2', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+https://github.com/sunlightlabs/chartoff
+---
+
+
+class: inverse, middle, center
+
+# BBC News data team
+"At the BBC data team, we have developed an R package and an R cookbook to make the process of creating publication-ready graphics in our in-house style using R's ggplot2 library a more reproducible process, as well as making it easier for people new to R to create graphics."
+
+---
+# BBPLOT R Cookbook
+
+![](https://github.com/mikemooreviz/nolimits/blob/gh-pages/bbc.png?raw=true)
+
+
+---
+# A graphic using the bbc_style() theme
+
+.left-code[
+```{r bbc, eval=FALSE}
+library(bbplot)
+plot + geom_col() +
+  bbc_style() +
+  scale_fill_manual(values = c("#FAAB18", "#1380A1","#588300")) +
+  scale_color_manual(values = c("#FAAB18", "#1380A1","#588300"))
+```
+]
+
+.right-plot[
+```{r bbc-out, ref.label='bbc', echo=FALSE, out.width="100%", warning=FALSE}
+
+```
+]
+
+https://github.com/bbc/bbplot
+---
+
+class: inverse, middle
+
+# Acknowledgments
+Thanks to Amy Cesal for leading the way on the use of styleguides in data visualiztion.  
+https://www.amycesal.com/  
+
+Thanks to Yihui Xie for creating the Xaringan package that was used for this presentation.  
+https://yihui.name/en/  
+  
+Thanks to Gina Reynolds whose work showed me what possible using Xaringan.  
+https://evangelinereynolds.netlify.com/  
+
+Thanks to Garrick Aden-Buie whose work showed me how to Xaringan.  
+https://www.garrickadenbuie.com
+
+Thanks to Hadley Wickahm for ggplot2.  
+http://hadley.nz/
